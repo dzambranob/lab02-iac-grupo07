@@ -1,13 +1,13 @@
 # Informe comparativo
 
-**Grupo**: grupo07
+**Grupo**: grupo 07
 
 **Integrantes**:
 - David Alexander Zambrano B. - R1 (Terraform)
 - Jose David Anacona Pira - R2 (Pulumi)
 - David Alexander Zambrano B. y Jose David Anacona Pira - R3 (Platform Lead)
 
-## 7.1 Matriz de Comparación Empírica
+## 1 Matriz de Comparación Empírica
 
 <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
   <thead>
@@ -64,7 +64,7 @@
   </tbody>
 </table>
 
-## 7.2 Evidencias del Experimento de Drift
+## 2 Evidencias del Experimento de Drift
 ### Pulumi
 
 Eliminamos manualmente el contenedor con
@@ -82,6 +82,19 @@ ni la imagen. La operación tardó 4 segundos.
 
 ![Recuperación del contenedor con Pulumi](evidencias/pulumi-drift-recuperacion.png)
 
+### Terraform
+Se hace la eliminación del contenedor en ejcución a través del comando `docker rm -f servidor-web-grupo07-tf`
 
-## 7.3 Conclusión Arquitectónica
-(Responder en 2 párrafos: Si tuvieran que desplegar una arquitectura de microservicios en una empresa donde todos los desarrolladores son de Python pero no saben DevOps, ¿cuál herramienta elegirían y qué precauciones tomarían?)
+![Eliminación del contenedor de Terraform](evidencias/terraform-drift-eliminacion.png)
+
+Y luego cuando se ejecuta el comando `terraform plan` se obtiene que terrafom autompaticamente detecta el cambio hecho a pesar de haber sido exterior y genera de nuevo el plan para generar el contenedor faltante.
+
+![Detección del cambio-1](evidencias/terraform-drift-plan-1.png)
+![Detección del cambio-2](evidencias/terraform-drift-plan-2.png)
+
+A partir de este plan se observa que terraform busca directamente en Docker y valida si el estado es igual al del archivo `terraform.tfstate` y ya que en este caso no es así, indica la diferencia a causa de un cambio externo y genera el plan de recuperación.
+
+## 3 Conclusión Arquitectónica
+Elegiríamos Pulumi con Python, porque permite definir la infraestructura utilizando el lenguaje que el equipo ya conoce. Esto facilitaría la adopción inicial y permitiría reutilizar funciones, ciclos y componentes para estandarizar el despliegue de los microservicios. 
+
+Como precaución, capacitaríamos al equipo en redes, permisos, manejo del estado y dependencias entre recursos: conocer Python no sustituye esos fundamentos. Separaríamos desarrollo, pruebas y producción en stacks, protegeríamos los secretos y almacenaríamos el estado en un backend compartido con acceso controlado. Además, fijaríamos versiones de dependencias e implementaríamos un pipeline con validaciones, pruebas y revisión de `pulumi preview --refresh` antes de aprobar cambios en producción. Complementaríamos el despliegue con monitoreo, respaldos y procedimientos de recuperación.
